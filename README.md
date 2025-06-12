@@ -68,3 +68,111 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+// const express = require("express");
+// const mongoose = require("mongoose");
+// const multer = require("multer");
+// const { v2: cloudinary } = require("cloudinary");
+// const dotenv = require("dotenv");
+// const cors = require("cors");
+// const Image = require("./models/Image");
+// const streamifier = require("streamifier");
+
+// dotenv.config();
+// const app = express();
+// app.use(cors());
+// app.use(express.json());
+
+// // Connect to MongoDB
+// mongoose.connect(process.env.MONGO_URI, {
+
+// });
+// console.log("MongoDB connected");
+
+// // Configure Cloudinary
+// cloudinary.config({
+//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//   api_key: process.env.CLOUDINARY_API_KEY,
+//   api_secret: process.env.CLOUDINARY_API_SECRET,
+// });
+
+// // Multer setup (in-memory)
+// const storage = multer.memoryStorage();
+// const upload = multer({ storage });
+
+// // Upload endpoint
+// app.post("/upload", upload.single("image"), async (req, res) => {
+//   try {
+//     const streamUpload = (req) => {
+//       return new Promise((resolve, reject) => {
+//         const stream = cloudinary.uploader.upload_stream((error, result) => {
+//           if (result) {
+//             resolve(result);
+//           } else {
+//             reject(error);
+//           }
+//         });
+//         streamifier.createReadStream(req.file.buffer).pipe(stream);
+//       });
+//     };
+
+//     const result = await streamUpload(req);
+//     const image = new Image({ imageUrl: result.secure_url });
+//     await image.save();
+
+//     res.json({ imageUrl: result.secure_url });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send("Upload failed");
+//   }
+// });
+
+// const PORT = process.env.PORT || 5000;
+// app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+
+
+
+// src/components/ImageUpload.js
+import React, { useState } from "react";
+import axios from "axios";
+
+const ImageUpload = () => {
+  const [file, setFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+    setPreviewUrl(URL.createObjectURL(e.target.files[0]));
+  };
+
+  const handleUpload = async () => {
+    const formData = new FormData(); 
+    formData.append("image", file);
+
+    try {
+      const res = await axios.post("http://localhost:5000/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      alert("Image uploaded! URL: " + res.data.imageUrl);
+    } catch (err) {
+      console.error(err);
+      alert("Upload failed");
+    }
+  };
+
+  return (
+    <div>
+      <h2>Upload Image</h2>
+      <input type="file" onChange={handleFileChange} />
+      <br />
+      {previewUrl && <img src={previewUrl} alt="Preview" width="200" />}
+      <br />
+      <button onClick={handleUpload}>Upload</button>
+    </div>
+  );
+};
+
+export default ImageUpload;
