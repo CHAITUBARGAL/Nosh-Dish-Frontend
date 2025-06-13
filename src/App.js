@@ -4,14 +4,17 @@ import io from "socket.io-client";
 
 function App() {
   const [dishes, setDishes] = useState([]);
+  const [errors, setErrors] = useState({
+    imageUrl: "",
+  });
 
   useEffect(() => {
-    const socket = io("https://nosh-dish-backend.onrender.com", {
+    const socket = io("http://localhost:4000", {
       transports: ["websocket"],
       withCredentials: true,
     });
 
-    fetch("https://nosh-dish-backend.onrender.com/api/dishes")
+    fetch("http://localhost:4000/api/dishes")
       .then((res) => res.json())
       .then(setDishes);
 
@@ -32,26 +35,47 @@ function App() {
   });
 
   const handleChange = (e) => {
-    setNewDish({ ...newDish, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setNewDish({ ...newDish, [name]: value });
+
+    if (name === "imageUrl") {
+      if (!isValidImageUrl(value)) {
+        setErrors((prev) => ({
+          ...prev,
+          imageUrl: "Enter a valid image URL (jpg, png, etc.)",
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, imageUrl: "" }));
+      }
+    }
+  };
+
+  const isValidImageUrl = (url) => {
+    const regex = /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp|svg))$/i;
+    return regex.test(url);
   };
 
   const addDish = async (e) => {
     e.preventDefault();
-    await fetch("https://nosh-dish-backend.onrender.com/api/dishes", {
+
+    if (!isValidImageUrl(newDish.imageUrl)) {
+      alert("Please enter a valid image URL ending in .jpg, .png, .jpeg, etc.");
+      return;
+    }
+
+    await fetch("http://localhost:4000/api/dishes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...newDish, isPublished: true }),
     });
+
     setNewDish({ dishName: "", imageUrl: "" });
   };
 
   const toggleStatus = async (dishId) => {
-    await fetch(
-      `https://nosh-dish-backend.onrender.com/api/dishes/${dishId}/toggle`,
-      {
-        method: "PATCH",
-      }
-    );
+    await fetch(`http://localhost:4000/api/dishes/${dishId}/toggle`, {
+      method: "PATCH",
+    });
   };
 
   return (
@@ -88,6 +112,10 @@ function App() {
           onChange={handleChange}
           required
         />
+        {errors.imageUrl && (
+          <p style={{ color: "red", margin: 0 }}>{errors.imageUrl}</p>
+        )}
+
         <button type="submit">Add Dish</button>
       </form>
     </div>
