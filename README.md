@@ -23,8 +23,9 @@ This is the frontend for **Nosh Dish**, a dish management dashboard with real-ti
 ### 1. Clone the repository
 
 ```bash
-git clone <your-frontend-repo-url>
-cd your-frontend-folder
+git clone https://github.com/CHAITUBARGAL/Nosh-Dish-Frontend
+
+cd Nosh-Dish-Frontend
 
 Install dependencies
 
