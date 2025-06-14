@@ -9,12 +9,12 @@ function App() {
   });
 
   useEffect(() => {
-    const socket = io("http://localhost:4000", {
+    const socket = io("https://nosh-dish-backend.onrender.com", {
       transports: ["websocket"],
       withCredentials: true,
     });
 
-    fetch("http://localhost:4000/api/dishes")
+    fetch("https://nosh-dish-backend.onrender.com/api/dishes")
       .then((res) => res.json())
       .then(setDishes);
 
@@ -63,7 +63,7 @@ function App() {
       return;
     }
 
-    await fetch("http://localhost:4000/api/dishes", {
+    await fetch("https://nosh-dish-backend.onrender.com/api/dishes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...newDish, isPublished: true }),
@@ -73,9 +73,12 @@ function App() {
   };
 
   const toggleStatus = async (dishId) => {
-    await fetch(`http://localhost:4000/api/dishes/${dishId}/toggle`, {
-      method: "PATCH",
-    });
+    await fetch(
+      `https://nosh-dish-backend.onrender.com/api/dishes/${dishId}/toggle`,
+      {
+        method: "PATCH",
+      }
+    );
   };
 
   return (
